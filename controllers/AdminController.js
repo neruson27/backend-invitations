@@ -1,17 +1,17 @@
 import JWT from 'jwt-simple';
 import { Admin } from '../models';
 import config from '../config';
+import { encryptPassword, validatePassword } from '../utils/password';
 
 async function login(req, res) {
   const { user, password } = req.body;
   const totallyAdmin = await Admin.find({}).count();
 
   if (totallyAdmin === 0) {
-    console.log(config.secret)
     const admin = await Admin.create({
       user,
       privilegies: 'SuperAdmin',
-      password: JWT.encode(password, config.secret, 'HS256')
+      password: await encryptPassword(password)
     })
 
     const jwt = JWT.encode({
@@ -26,13 +26,13 @@ async function login(req, res) {
   const existAdmin = await Admin.findOne({user});
 
   if (!existAdmin) {
-    return res.status(204).send({message: "USER NOT EXIST"});
+    return res.status(400).send({message: "USER NOT EXIST"});
   }
-  const decodePassword = JWT.decode(existAdmin.password, config.secret, false, 'HS256');
-  const validPassword = password === decodePassword;
+
+  const validPassword = await validatePassword(password, existAdmin.password);
 
   if(!validPassword) {
-    return res.status(204).send({message: "PASSWORD INVALID"});
+    return res.status(400).send({message: "PASSWORD INVALID"});
   }
 
   const token = JWT.encode({
