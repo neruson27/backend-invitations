@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
 
 const AdminSchema = new mongoose.Schema({
-  user: String,
+  user: {
+    type: String,
+    unique: true
+  },
   privilegies: {
     type: String,
     enum: ['Admin', 'SuperAdmin']
