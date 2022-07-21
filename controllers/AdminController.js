@@ -5,6 +5,7 @@ import { encryptPassword, validatePassword } from '../utils/password';
 
 async function login(req, res) {
   const { user, password } = req.body;
+  console.log(req.body)
   const totallyAdmin = await Admin.find({}).count();
 
   if (totallyAdmin === 0) {
