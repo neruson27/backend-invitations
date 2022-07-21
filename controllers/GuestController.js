@@ -1,9 +1,21 @@
+import Mongoose from 'mongoose';
 import { Guest } from '../models';
 
 function getAll(_req, res) {
   Guest.find({})
     .then(guests => {
       if(guests.length > 0) return res.status(200).send(guests)
+      return res.status(404).send({message: 'NO CONTENT'});
+    })
+    .catch(err => res.status(500).send({err}))
+}
+
+function getOne(req, res) {
+  const { id } = req.params
+
+  Guest.findById(id)
+    .then(guest => {
+      if(guest) return res.status(200).send(guest)
       return res.status(404).send({message: 'NO CONTENT'});
     })
     .catch(err => res.status(500).send({err}))
@@ -64,7 +76,7 @@ function deleted(req, res) {
     return res.status(400).send({message: 'NO ID'});
   }
 
-  Guest.deleteOne({'$id': id})
+  Guest.deleteOne({_id: Mongoose.Types.ObjectId(id)})
     .then(result => {
       res.status(200).send(result.ok);
     })
@@ -75,6 +87,7 @@ function deleted(req, res) {
 
 export default {
   getAll,
+  getOne,
   create,
   update,
   deleted

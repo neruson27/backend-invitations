@@ -44,6 +44,27 @@ async function login(req, res) {
   return res.status(200).send({token})
 }
 
+async function createAnotherAdmin(req, res) {
+  if (req.params.privilegies !== 'SuperAdmin') return res.status(400).send({message: 'NO PASARAAAS!'})
+
+  const { user, password } = req.body;
+
+  const admin = await Admin.create({
+    user,
+    privilegies: 'Admin',
+    password: await encryptPassword(password)
+  })
+
+  const jwt = JWT.encode({
+    id: admin._id,
+    user: admin.user,
+    privilegies: admin.privilegies
+  }, config.secret)
+
+  return res.status(200).send({token: jwt})
+}
+
 export default {
-  login
+  login,
+  createAnotherAdmin
 }
