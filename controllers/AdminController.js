@@ -8,6 +8,8 @@ async function login(req, res) {
   console.log(req.body)
   const totallyAdmin = await Admin.find({}).count();
 
+  console.log(totallyAdmin)
+
   if (totallyAdmin === 0) {
     const admin = await Admin.create({
       user,
